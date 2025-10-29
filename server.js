@@ -35,7 +35,8 @@ app.use("/api/expenses", expenseRoutes);
 app.use(errorHandler);
 
 // ❗ IMPORTANT — REMOVE app.listen()
-// app.listen(PORT, () => console.log("Server running"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log("Server running"));
 
 // ✅ EXPORT for Vercel
 module.exports = app;
