@@ -36,4 +36,5 @@ app.use('/api/expenses', expenseRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+import serverless from "serverless-http";
+export default serverless(app);
