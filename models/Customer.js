@@ -2,24 +2,17 @@ const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true, // associate customer with logged-in user
-    },
-    name: {
+    name: { type: String, required: true },
+    email: { type: String, trim: true },
+    phone: { type: String, trim: true },
+    address: { type: String },
+    status: {
       type: String,
-      required: true,
+      enum: ["Active", "Inactive", "New", "VIP"],
+      default: "New"
     },
-    email: {
-      type: String,
-    },
-    phone: {
-      type: String,
-    },
-    address: {
-      type: String,
-    },
+    totalSpent: { type: Number, default: 0 },
+    totalOrders: { type: Number, default: 0 }
   },
   { timestamps: true }
 );
