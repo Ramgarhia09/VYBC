@@ -7,24 +7,17 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    name: {
+    name: { type: String, required: true, trim: true },
+    category: { type: String, required: true },
+    price: { type: Number, required: true },
+    stock: { type: Number, default: 0 },
+    description: { type: String, default: "" },
+
+    // Automatically maintain product state
+    status: {
       type: String,
-      required: [true, "Product name is required"],
-    },
-    category: {
-      type: String,
-      required: [true, "Category is required"],
-    },
-    price: {
-      type: Number,
-      required: [true, "Price is required"],
-    },
-    stock: {
-      type: Number,
-      default: 0,
-    },
-    description: {
-      type: String,
+      enum: ["active", "low", "out", "new"],
+      default: "new",
     },
   },
   { timestamps: true }
