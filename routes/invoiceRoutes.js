@@ -5,6 +5,7 @@ const {
   getInvoices,
   updateInvoice,
   shareInvoice,
+  deleteInvoice
 } = require("../controllers/invoiceController");
 
 // Billing & Invoicing APIs
@@ -14,4 +15,5 @@ router.put("/invoices/:id", updateInvoice);        // 4.3
 router.post("/invoices/:id/share", shareInvoice);  // 4.4
 router.delete("/invoices/:id", protect, deleteInvoice);
 module.exports = router;
+
 
