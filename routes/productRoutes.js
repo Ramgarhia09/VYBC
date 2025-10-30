@@ -8,8 +8,9 @@ const {
   getCategories,
 } = require("../controllers/productController");
 
-router.post("/products", protect, addProduct);
-router.get("/products", protect, getProducts);
+// ✅ Do NOT write "/products" again
+router.post("/", protect, addProduct);
+router.get("/", protect, getProducts);
 router.put("/stock/update/:id", protect, updateStock);
 router.get("/categories", protect, getCategories);
 
