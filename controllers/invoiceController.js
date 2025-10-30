@@ -1,101 +1,77 @@
-const Invoice = require("../models/Invoice");
-const nodemailer = require("nodemailer");
-const twilio = require("twilio"); // optional if using WhatsApp
+const Invoice = require("../models/invoiceModel");
 
-// 4.1 Create invoice
+// 4.1 Create Invoice
 const createInvoice = async (req, res) => {
   try {
-    const { customerName, email, phone, items, totalAmount, status } = req.body;
+    const { customerName, invoiceNumber, amount, dueDate, status } = req.body;
 
     const invoice = await Invoice.create({
+      user: req.user._id,
       customerName,
-      email,
-      phone,
-      items,
-      totalAmount,
+      invoiceNumber,
+      amount,
+      dueDate,
       status,
     });
 
-    res.status(201).json({ message: "Invoice created successfully", invoice });
-  } catch (error) {
-    res.status(500).json({ message: "Error creating invoice", error: error.message });
-  }
-};
-
-// 4.2 Get all invoices
-const getInvoices = async (req, res) => {
-  try {
-    const invoices = await Invoice.find().sort({ createdAt: -1 });
-    res.json(invoices);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching invoices", error: error.message });
-  }
-};
-
-// 4.3 Update invoice
-const updateInvoice = async (req, res) => {
-  try {
-    const invoice = await Invoice.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!invoice) return res.status(404).json({ message: "Invoice not found" });
-    res.json({ message: "Invoice updated", invoice });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating invoice", error: error.message });
-  }
-};
-
-const deleteInvoice = async (req, res) => {
-  try {
-    const invoice = await Invoice.findByIdAndDelete(req.params.id);
-    if (!invoice) return res.status(404).json({ message: "Invoice not found" });
-
-    res.json({ message: "Invoice deleted successfully" });
+    res.status(201).json({ message: "Invoice created", invoice });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-// 4.4 Share invoice via Email/WhatsApp
-const shareInvoice = async (req, res) => {
+
+// 4.2 Get All Invoices (Filter by Status)
+const getInvoices = async (req, res) => {
   try {
-    const { method } = req.body; // 'email' or 'whatsapp'
-    const invoice = await Invoice.findById(req.params.id);
+    const { status } = req.query; // /invoices?status=paid (optional filter)
+
+    let filter = { user: req.user._id };
+    if (status) filter.status = status;
+
+    const invoices = await Invoice.find(filter).sort({ createdAt: -1 });
+
+    res.status(200).json(invoices);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// 4.3 Update Invoice (status or details)
+const updateInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const invoice = await Invoice.findOneAndUpdate(
+      { _id: id, user: req.user._id },
+      req.body,
+      { new: true }
+    );
 
     if (!invoice) return res.status(404).json({ message: "Invoice not found" });
 
-    if (method === "email") {
-      // Send via email
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: invoice.email,
-        subject: "Invoice Details",
-        text: `Hello ${invoice.customerName}, your invoice total is ₹${invoice.totalAmount}`,
-      };
-
-      await transporter.sendMail(mailOptions);
-      res.json({ message: "Invoice shared via Email" });
-    } else if (method === "whatsapp") {
-      // Optional: send via Twilio WhatsApp API
-      const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-      await client.messages.create({
-        from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
-        to: `whatsapp:${invoice.phone}`,
-        body: `Hello ${invoice.customerName}, your invoice total is ₹${invoice.totalAmount}`,
-      });
-      res.json({ message: "Invoice shared via WhatsApp" });
-    } else {
-      res.status(400).json({ message: "Invalid share method" });
-    }
+    res.status(200).json({ message: "Invoice updated", invoice });
   } catch (error) {
-    res.status(500).json({ message: "Error sharing invoice", error: error.message });
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// 4.4 Share Invoice (Just mock response)
+const shareInvoice = async (req, res) => {
+  try {
+    res.status(200).json({ message: "Invoice shared successfully!" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// 4.5 Delete Invoice
+const deleteInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Invoice.findOneAndDelete({ _id: id, user: req.user._id });
+    res.status(200).json({ message: "Invoice deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -103,7 +79,6 @@ module.exports = {
   createInvoice,
   getInvoices,
   updateInvoice,
-  deleteInvoice,
   shareInvoice,
+  deleteInvoice,
 };
-
