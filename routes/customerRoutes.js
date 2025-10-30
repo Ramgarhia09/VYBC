@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   addCustomer,
   getCustomers,
+  getCustomerById,
   updateCustomer,
   deleteCustomer,
    updateCustomerStats,
@@ -29,4 +30,5 @@ router.route("/:id")
 // Update stats
 router.patch("/:id/update-stats", protect, updateCustomerStats);
 module.exports = router;
+
 
