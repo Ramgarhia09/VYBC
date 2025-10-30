@@ -1,4 +1,4 @@
-const Invoice = require("../models/invoiceModel");
+const Invoice = require("../models/Invoice");
 
 // 4.1 Create Invoice
 const createInvoice = async (req, res) => {
@@ -82,3 +82,4 @@ module.exports = {
   shareInvoice,
   deleteInvoice,
 };
+
