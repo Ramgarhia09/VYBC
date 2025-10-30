@@ -45,6 +45,16 @@ const updateInvoice = async (req, res) => {
   }
 };
 
+const deleteInvoice = async (req, res) => {
+  try {
+    const invoice = await Invoice.findByIdAndDelete(req.params.id);
+    if (!invoice) return res.status(404).json({ message: "Invoice not found" });
+
+    res.json({ message: "Invoice deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 // 4.4 Share invoice via Email/WhatsApp
 const shareInvoice = async (req, res) => {
   try {
@@ -93,5 +103,7 @@ module.exports = {
   createInvoice,
   getInvoices,
   updateInvoice,
+  deleteInvoice,
   shareInvoice,
 };
+
